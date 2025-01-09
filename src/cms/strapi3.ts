@@ -14,7 +14,7 @@ const getArticles = async () => {
 };
 
 const getPrimaryCategories = async () => {
-	const { data } = await client.get<Category[]>('/primary-categories');
+	const { data } = await client.get<Category[]>('/primary-categories/original');
 	return data;
 }
 
