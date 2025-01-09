@@ -1,5 +1,3 @@
-import Strapi3 from './cms/index.ts';
+import PrimaryCategoryMigration from './entities/primary-category/migration.ts'
 
-const articles = await Strapi3.getArticles();
-
-console.log('Articles length:', articles.length);
+await PrimaryCategoryMigration.start();
