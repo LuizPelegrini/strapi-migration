@@ -30,11 +30,11 @@ const migrate = async (primaryCategories: PrimaryCategory[]) => {
   }
 }
 
-const getPrimaryCategoryById = (id: number) => {
+const getPrimaryCategoryDocumentId = (id: number) => {
   return tracker.getDocumentId(id);
 }
 
 export default {
   start,
-  getPrimaryCategoryById
+  getPrimaryCategoryDocumentId
 }

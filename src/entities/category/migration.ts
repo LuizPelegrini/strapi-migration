@@ -36,7 +36,7 @@ const migrate = async (categories: Category[]) => {
 const possiblyAttachPrimaryCategory = (id: number, primaryCategory: PrimaryCategory | null) => {
   if (primaryCategory) {
     // TODO: Revisit this to manage dependency on other Migrations
-    const primaryCategoryDocumentId = PrimaryCategoryMigration.getPrimaryCategoryById(primaryCategory.id);
+    const primaryCategoryDocumentId = PrimaryCategoryMigration.getPrimaryCategoryDocumentId(primaryCategory.id);
     if (!primaryCategoryDocumentId) {
       throw new Error(`Unable to attach PrimaryCategory ${primaryCategory.id} to Category ${id}`);
     }
