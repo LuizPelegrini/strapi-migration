@@ -1,5 +1,5 @@
+import type { Article, Category, PrimaryCategory } from '@/types.ts';
 import axios from 'axios';
-import type { Article, Category } from '../types.ts';
 
 const client = axios.create({
 	baseURL: Deno.env.get('STRAPI_3_URL'),
@@ -14,7 +14,12 @@ const getArticles = async () => {
 };
 
 const getPrimaryCategories = async () => {
-	const { data } = await client.get<Category[]>('/primary-categories/original');
+	const { data } = await client.get<PrimaryCategory[]>('/primary-categories/original');
+	return data;
+}
+
+const getCategories = async () => {
+	const { data } = await client.get<Category[]>('/categories');
 	return data;
 }
 
@@ -22,4 +27,5 @@ const getPrimaryCategories = async () => {
 export default {
 	getArticles,
 	getPrimaryCategories,
+	getCategories
 }

@@ -1,10 +1,11 @@
-import Strapi3 from '../../cms/strapi3.ts'
-import Strapi5 from '../../cms/strapi5.ts'
-import type { Category } from "../../types.ts";
-import Tracker from "./tracker.ts";
+import Strapi3 from '@/cms/strapi3.ts'
+import Strapi5 from '@/cms/strapi5.ts'
+import type { PrimaryCategory } from "@/types.ts";
+import { Tracker } from "@/utils/tracker.ts";
+
+const tracker = new Tracker(`${Deno.cwd()}/src/entities/primary-category/registry.json`);
 
 const start = async () => {
-  Tracker.preload();
   const categories = await Strapi3.getPrimaryCategories();
 
   try {
@@ -12,23 +13,28 @@ const start = async () => {
   } catch (error) {
     console.log(error);
   } finally {
-    Tracker.save();
+    tracker.save();
   }
 }
 
-const migrate = async (categories: Category[]) => {
-  for (const category of categories) {
-    if (Tracker.exists(category.id)) {
-      console.log(`Category ${category.id} already migrated. Skipping...`);
+const migrate = async (primaryCategories: PrimaryCategory[]) => {
+  for (const category of primaryCategories) {
+    if (tracker.exists(category.id)) {
+      console.log(`PrimaryCategory ${category.id} already migrated. Skipping...`);
       continue;
     };
 
     const { id } = category;
     const documentId = await Strapi5.createPrimaryCategory(category);
-    Tracker.register({ id, documentId });
+    tracker.register({ id, documentId });
   }
 }
 
+const getPrimaryCategoryById = (id: number) => {
+  return tracker.getDocumentId(id);
+}
+
 export default {
-  start
+  start,
+  getPrimaryCategoryById
 }
