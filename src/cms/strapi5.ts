@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Category, PrimaryCategory, ShowCategory } from "../types.ts";
+import type { Category, PrimaryCategory, ShowCategory, ShowSubCategory } from "../types.ts";
 
 const client = axios.create({
 	baseURL: Deno.env.get('STRAPI_5_URL'),
@@ -31,7 +31,9 @@ const createCategory = async ({ name, description }: Category, primaryCategoryDo
       name,
       description,
       ...(primaryCategoryDocumentId && { 
-        primary_category: [primaryCategoryDocumentId] 
+        primary_category: {
+          connect: [primaryCategoryDocumentId]
+        }
       }),
     }
   });
@@ -52,8 +54,27 @@ const createShowCategory = async ({ name }: ShowCategory) => {
   return data.data.documentId;
 }
 
+type ShowSubCategoryResponse = {
+  data: { documentId: string }
+}
+const createShowSubCategory = async ({ name }: ShowSubCategory, showCategoryDocumentId?: string) => {
+  const { data } = await client.post<ShowSubCategoryResponse>('/show-sub-categories', {
+    data: {
+      name,
+      ...(showCategoryDocumentId && {
+        showCategory: {
+          connect: [showCategoryDocumentId]
+        }
+      }),
+    }
+  });
+
+  return data.data.documentId;
+}
+
 export default {
   createPrimaryCategory,
   createCategory,
-  createShowCategory
+  createShowCategory,
+  createShowSubCategory
 }

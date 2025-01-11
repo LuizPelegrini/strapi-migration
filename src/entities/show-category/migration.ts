@@ -6,6 +6,7 @@ import { Tracker } from "@/utils/tracker.ts";
 const tracker = new Tracker(`${Deno.cwd()}/src/entities/show-category/registry.json`);
 
 const start = async () => {
+  console.log('\n\n\n------ ShowCategories -------');
   const showCategories = await Strapi3.getShowCategories();
 
   try {
@@ -25,6 +26,8 @@ const migrate = async (showCategories: ShowCategory[]) => {
     };
 
     const { id } = showCategory;
+    console.log(`Migrating: ${id}`);
+    
     const documentId = await Strapi5.createShowCategory(showCategory);
     tracker.register({ id, documentId });
   }

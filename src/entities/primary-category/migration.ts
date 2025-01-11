@@ -6,6 +6,7 @@ import { Tracker } from "@/utils/tracker.ts";
 const tracker = new Tracker(`${Deno.cwd()}/src/entities/primary-category/registry.json`);
 
 const start = async () => {
+  console.log('\n\n\n------ PrimaryCategory -------');
   const categories = await Strapi3.getPrimaryCategories();
 
   try {
@@ -25,6 +26,8 @@ const migrate = async (primaryCategories: PrimaryCategory[]) => {
     };
 
     const { id } = category;
+    console.log(`Migrating: ${id}`);
+
     const documentId = await Strapi5.createPrimaryCategory(category);
     tracker.register({ id, documentId });
   }

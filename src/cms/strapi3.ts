@@ -32,10 +32,31 @@ const getShowCategories = async () => {
 	return data;
 }
 
+const getShowCategoryByShowSubCategoryId = async (showSubCategoryId: number) => {
+	const { data } = await client.get<ShowCategory[]>('/show-categories', {
+		params: {
+			_where: {
+				'subcategories.id': showSubCategoryId
+			}
+		}
+	});
+
+	// we might not find a show category for a given show subcategory
+	return data[0] ? data[0] : null;
+}
+
+// TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
+const getShowSubCategories = async () => {
+	const { data } = await client.get<ShowCategory[]>('/show-subcategories');
+	return data;
+}
+
 
 export default {
 	getArticles,
 	getPrimaryCategories,
 	getCategories,
-	getShowCategories
+	getShowCategories,
+	getShowCategoryByShowSubCategoryId,
+	getShowSubCategories
 }
