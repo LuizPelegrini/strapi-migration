@@ -4,7 +4,7 @@ import ShowCategoryMigration from '@/entities/show-category/migration.ts';
 import type { ShowCategory, ShowSubCategory } from "@/types.ts";
 import { Tracker } from "@/utils/tracker.ts";
 
-const tracker = new Tracker(`${Deno.cwd()}/src/entities/show-sub-category/registry.json`);
+const tracker = new Tracker(`${Deno.cwd()}/src/entities/show-sub-category`);
 
 const start = async () => {
   console.log('\n\n\n------ ShowSubCategories -------');
