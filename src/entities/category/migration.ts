@@ -29,30 +29,35 @@ const migrate = async (categories: Category[]) => {
 		const { id, primary_category } = category;
 		console.log(`Migrating: ${id}`);
 
-		const primaryCategoryDocumentId = possiblyAttachPrimaryCategory(
+		const primaryCategoryDocumentId = possiblyAttachPrimaryCategory({
 			id,
-			primary_category,
-		);
+			primaryCategoryId: primary_category,
+		});
 
-		const documentId = await Strapi5.createCategory(
-			category,
+		const documentId = await Strapi5.createCategory({
+			name: category.name,
+			description: category.description,
+			status: category.published_at ? 'published' : 'draft',
 			primaryCategoryDocumentId,
-		);
+		});
 		tracker.register({ id, documentId });
 	}
 };
 
-const possiblyAttachPrimaryCategory = (
-	id: number,
-	primaryCategory: PrimaryCategory | null,
-) => {
-	if (primaryCategory) {
+const possiblyAttachPrimaryCategory = ({
+	id,
+	primaryCategoryId,
+}: {
+	id: number;
+	primaryCategoryId: number | null;
+}) => {
+	if (primaryCategoryId) {
 		// TODO: Revisit this to manage dependency on other Migrations
 		const primaryCategoryDocumentId =
-			PrimaryCategoryMigration.getPrimaryCategoryDocumentId(primaryCategory.id);
+			PrimaryCategoryMigration.getPrimaryCategoryDocumentId(primaryCategoryId);
 		if (!primaryCategoryDocumentId) {
 			throw new Error(
-				`Unable to attach PrimaryCategory ${primaryCategory.id} to Category ${id}`,
+				`Unable to attach PrimaryCategory ${primaryCategoryId} to Category ${id}`,
 			);
 		}
 

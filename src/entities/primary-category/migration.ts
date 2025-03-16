@@ -30,7 +30,11 @@ const migrate = async (primaryCategories: PrimaryCategory[]) => {
 		const { id } = category;
 		console.log(`Migrating: ${id}`);
 
-		const documentId = await Strapi5.createPrimaryCategory(category);
+		const documentId = await Strapi5.createPrimaryCategory({
+			name: category.name,
+			description: category.description,
+			status: category.published_at ? 'published' : 'draft',
+		});
 		tracker.register({ id, documentId });
 	}
 };

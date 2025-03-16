@@ -1,3 +1,4 @@
+// All Strapi 3 types
 export type ApiToken = {
 	id: number;
 	token: string;
@@ -37,7 +38,9 @@ export type Category = {
 	id: number;
 	name: string;
 	description: string | null;
-	primary_category: PrimaryCategory | null;
+	// we want to migrate published and draft entries
+	published_at: string | null;
+	primary_category: number | null;
 };
 
 export type Event = {
@@ -118,6 +121,7 @@ export type PrimaryCategory = {
 	id: number;
 	name: string;
 	description: string | null;
+	published_at: string | null;
 };
 
 export type Profile = {

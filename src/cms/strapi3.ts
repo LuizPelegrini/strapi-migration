@@ -23,14 +23,14 @@ const getArticles = async () => {
 // TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
 const getPrimaryCategories = async () => {
 	const { data } = await client.get<PrimaryCategory[]>(
-		'/primary-categories/original',
+		'/primary-categories/migration',
 	);
 	return data;
 };
 
 // TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
 const getCategories = async () => {
-	const { data } = await client.get<Category[]>('/categories');
+	const { data } = await client.get<Category[]>('/categories/migration');
 	return data;
 };
 
