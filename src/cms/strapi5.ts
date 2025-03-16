@@ -112,7 +112,7 @@ const createShowSubCategory = async ({
 			data: {
 				name,
 				...(showCategoryDocumentId && {
-					showCategory: {
+					show_category: {
 						connect: [showCategoryDocumentId],
 					},
 				}),
