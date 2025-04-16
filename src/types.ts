@@ -168,6 +168,7 @@ export type ShowCategory = {
 export type ShowSubCategory = {
 	id: number;
 	name: string;
+	updated_at: string;
 };
 
 export type Socmed = {

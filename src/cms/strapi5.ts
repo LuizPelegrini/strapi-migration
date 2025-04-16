@@ -140,7 +140,7 @@ const createShowSubCategory = async ({
 				name,
 				...(showCategoryDocumentId && {
 					show_category: {
-						connect: [showCategoryDocumentId],
+						set: [showCategoryDocumentId],
 					},
 				}),
 			},
@@ -148,6 +148,22 @@ const createShowSubCategory = async ({
 	);
 
 	return data.data.documentId;
+};
+
+const updateShowSubCategory = async (
+	documentId: string,
+	{ name, showCategoryDocumentId }: Strapi5ShowSubCategory,
+) => {
+	await client.put(`/show-sub-categories/${documentId}`, {
+		data: {
+			name,
+			...(showCategoryDocumentId && {
+				show_category: {
+					set: [showCategoryDocumentId],
+				},
+			}),
+		},
+	});
 };
 
 type FileResponse = {
@@ -177,5 +193,6 @@ export default {
 	createShowCategory,
 	updateShowCategory,
 	createShowSubCategory,
+	updateShowSubCategory,
 	createFile,
 };

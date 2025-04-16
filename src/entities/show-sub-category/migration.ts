@@ -4,7 +4,7 @@ import ShowCategoryMigration from '@/entities/show-category/migration.ts';
 import type { ShowCategory, ShowSubCategory } from '@/types.ts';
 import { Tracker } from '@/utils/tracker.ts';
 
-const tracker = new Tracker(`${Deno.cwd()}/src/entities/show-sub-category`);
+const tracker = new Tracker('show-sub-category');
 
 const start = async () => {
 	console.log('\n\n\n------ ShowSubCategories -------');
@@ -22,13 +22,18 @@ const start = async () => {
 const migrate = async (categories: ShowSubCategory[]) => {
 	for (const category of categories) {
 		if (tracker.exists(category.id)) {
+			if (tracker.isStale(category.id, category.updated_at)) {
+				await updateShowSubCategory(category);
+				continue;
+			}
+
 			console.log(
 				`ShowSubCategory ${category.id} already migrated. Skipping...`,
 			);
 			continue;
 		}
 
-		const { id } = category;
+		const { id, updated_at } = category;
 		console.log(`Migrating: ${id}`);
 
 		const showCategory = await Strapi3.getShowCategoryByShowSubCategoryId(id);
@@ -38,7 +43,7 @@ const migrate = async (categories: ShowSubCategory[]) => {
 			name: category.name,
 			showCategoryDocumentId,
 		});
-		tracker.register({ id, documentId });
+		tracker.register({ id, documentId, updated_at });
 	}
 };
 
@@ -56,6 +61,26 @@ const possiblyAttachShowCategory = (
 		}
 		return showCategoryDocumentId;
 	}
+};
+
+const updateShowSubCategory = async (showSubCategory: ShowSubCategory) => {
+	const { id, updated_at } = showSubCategory;
+	console.log(`Updating: ${id}`);
+
+	const documentId = tracker.getDocumentId(id);
+	if (!documentId) {
+		throw new Error(`Update Failed: ShowSubCategory ${id} not found`);
+	}
+
+	const showCategory = await Strapi3.getShowCategoryByShowSubCategoryId(id);
+	const showCategoryDocumentId = possiblyAttachShowCategory(id, showCategory);
+
+	await Strapi5.updateShowSubCategory(documentId, {
+		name: showSubCategory.name,
+		showCategoryDocumentId,
+	});
+
+	tracker.update(id, updated_at);
 };
 
 export default {
