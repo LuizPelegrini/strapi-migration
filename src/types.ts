@@ -41,6 +41,7 @@ export type Category = {
 	// we want to migrate published and draft entries
 	published_at: string | null;
 	primary_category: number | null;
+	updated_at: string;
 };
 
 export type Event = {

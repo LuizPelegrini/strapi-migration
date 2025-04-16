@@ -1,10 +1,10 @@
 import Strapi3 from '@/cms/strapi3.ts';
 import Strapi5 from '@/cms/strapi5.ts';
 import PrimaryCategoryMigration from '@/entities/primary-category/migration.ts';
-import type { Category, PrimaryCategory } from '@/types.ts';
+import type { Category } from '@/types.ts';
 import { Tracker } from '@/utils/tracker.ts';
 
-const tracker = new Tracker(`${Deno.cwd()}/src/entities/category`);
+const tracker = new Tracker('category');
 
 const start = async () => {
 	console.log('\n\n\n------ Category -------');
@@ -22,11 +22,16 @@ const start = async () => {
 const migrate = async (categories: Category[]) => {
 	for (const category of categories) {
 		if (tracker.exists(category.id)) {
+			if (tracker.isStale(category.id, category.updated_at)) {
+				await updateCategory(category);
+				continue;
+			}
+
 			console.log(`Category ${category.id} already migrated. Skipping...`);
 			continue;
 		}
 
-		const { id, primary_category } = category;
+		const { id, primary_category, updated_at } = category;
 		console.log(`Migrating: ${id}`);
 
 		const primaryCategoryDocumentId = possiblyAttachPrimaryCategory({
@@ -40,7 +45,7 @@ const migrate = async (categories: Category[]) => {
 			status: category.published_at ? 'published' : 'draft',
 			primaryCategoryDocumentId,
 		});
-		tracker.register({ id, documentId });
+		tracker.register({ id, documentId, updated_at });
 	}
 };
 
@@ -63,6 +68,31 @@ const possiblyAttachPrimaryCategory = ({
 
 		return primaryCategoryDocumentId;
 	}
+};
+
+const updateCategory = async (category: Category) => {
+	const { id, primary_category, updated_at } = category;
+	console.log(`Updating: ${id}`);
+
+	const documentId = tracker.getDocumentId(category.id);
+
+	if (!documentId) {
+		throw new Error(`Update Failed: Category ${category.id} not found`);
+	}
+
+	const primaryCategoryDocumentId = possiblyAttachPrimaryCategory({
+		id,
+		primaryCategoryId: primary_category,
+	});
+
+	await Strapi5.updateCategory(documentId, {
+		name: category.name,
+		description: category.description,
+		status: category.published_at ? 'published' : 'draft',
+		primaryCategoryDocumentId,
+	});
+
+	tracker.update(id, updated_at);
 };
 
 export default {

@@ -91,6 +91,14 @@ const createCategory = async ({
 	return data.data.documentId;
 };
 
+const updateCategory = async (documentId: string, newData: Strapi5Category) => {
+	const { status, ...rest } = newData;
+	await client.put(
+		`/categories/${documentId}${status ? `?status=${status}` : ''}`,
+		{ data: rest },
+	);
+};
+
 type ShowCategoryResponse = {
 	data: { documentId: string };
 };
@@ -158,6 +166,7 @@ export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
 	createCategory,
+	updateCategory,
 	createShowCategory,
 	createShowSubCategory,
 	createFile,
