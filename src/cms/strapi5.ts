@@ -1,4 +1,5 @@
 import config from '@/config/index.ts';
+import type { File } from '@/types.ts';
 import axios from 'axios';
 
 const client = axios.create({
@@ -39,6 +40,17 @@ const createPrimaryCategory = async ({
 	);
 
 	return data.data.documentId;
+};
+
+const updatePrimaryCategory = async (
+	documentId: string,
+	newData: Strapi5PrimaryCategory,
+) => {
+	const { status, ...rest } = newData;
+	await client.put(
+		`/primary-categories/${documentId}${status ? `?status=${status}` : ''}`,
+		{ data: rest },
+	);
 };
 
 type CategoryResponse = {
@@ -123,9 +135,30 @@ const createShowSubCategory = async ({
 	return data.data.documentId;
 };
 
+type FileResponse = {
+	data: {
+		id: number; // id is more important in this case, documentId does not work when setting file relations in other collections
+		documentId: string;
+	};
+};
+type Strapi5File = Omit<File, 'id'>;
+const createFile = async (file: Strapi5File) => {
+	const { data } = await client.post<FileResponse>('/upload/migration/create', {
+		data: file,
+	});
+
+	// fields needed
+	return {
+		id: data.data.id,
+		documentId: data.data.documentId,
+	};
+};
+
 export default {
 	createPrimaryCategory,
+	updatePrimaryCategory,
 	createCategory,
 	createShowCategory,
 	createShowSubCategory,
+	createFile,
 };

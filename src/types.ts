@@ -122,6 +122,7 @@ export type PrimaryCategory = {
 	name: string;
 	description: string | null;
 	published_at: string | null;
+	updated_at: string;
 };
 
 export type Profile = {
