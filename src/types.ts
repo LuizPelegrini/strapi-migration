@@ -162,6 +162,7 @@ export type ShowCategory = {
 	id: number;
 	name: string;
 	subcategories: ShowSubCategory[];
+	updated_at: string;
 };
 
 export type ShowSubCategory = {
