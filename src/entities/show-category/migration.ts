@@ -41,14 +41,14 @@ const migrate = async (showCategories: ShowCategory[]) => {
 };
 
 const getShowCategoryDocumentId = (id: number) => {
-	return tracker.getDocumentId(id);
+	return tracker.get(id)?.documentId;
 };
 
 const updateShowCategory = async (showCategory: ShowCategory) => {
 	const { id, updated_at } = showCategory;
 	console.log(`Updating: ${id}`);
 
-	const documentId = tracker.getDocumentId(id);
+	const { documentId } = tracker.get(id) || {};
 
 	if (!documentId) {
 		throw new Error(`Update Failed: ShowCategory ${id} not found`);

@@ -41,8 +41,8 @@ export class Tracker {
 		this.registries.set(registry.id, registry);
 	}
 
-	getDocumentId(id: number) {
-		return this.registries.get(id)?.documentId;
+	get(id: number) {
+		return this.registries.get(id);
 	}
 
 	isStale(id: number, updated_at: string) {

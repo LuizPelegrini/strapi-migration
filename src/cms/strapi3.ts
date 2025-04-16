@@ -2,6 +2,7 @@ import config from '@/config/index.ts';
 import type {
 	Article,
 	Category,
+	File,
 	PrimaryCategory,
 	ShowCategory,
 } from '@/types.ts';
@@ -61,6 +62,18 @@ const getShowSubCategories = async () => {
 	return data;
 };
 
+const getFiles = async () => {
+	const { data } = await client.get<File[]>('/upload/files', {
+		params: {
+			_start: 0,
+			// https://arc.net/l/quote/owqtkofw
+			// Getting all files, we can paginate if needed, but I'm too lazy to do it now
+			_limit: -1,
+		},
+	});
+	return data;
+};
+
 export default {
 	getArticles,
 	getPrimaryCategories,
@@ -68,4 +81,5 @@ export default {
 	getShowCategories,
 	getShowCategoryByShowSubCategoryId,
 	getShowSubCategories,
+	getFiles,
 };

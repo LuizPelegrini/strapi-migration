@@ -173,7 +173,9 @@ type FileResponse = {
 	};
 };
 type Strapi5File = Omit<File, 'id'>;
-const createFile = async (file: Strapi5File) => {
+// remove related from file as it is not supported in strapi 5
+// remove updated_at from file as we don't want to send it to strapi 5 and it might override the updated_at in the file
+const createFile = async ({ updated_at, related, ...file }: Strapi5File) => {
 	const { data } = await client.post<FileResponse>('/upload/migration/create', {
 		data: file,
 	});
@@ -183,6 +185,11 @@ const createFile = async (file: Strapi5File) => {
 		id: data.data.id,
 		documentId: data.data.documentId,
 	};
+};
+
+// to update a file, we need to use the id of the file, not the documentId
+const updateFile = async (id: string, newData: Strapi5File) => {
+	await client.put(`/upload/migration/update/${id}`, { data: newData });
 };
 
 export default {
@@ -195,4 +202,5 @@ export default {
 	createShowSubCategory,
 	updateShowSubCategory,
 	createFile,
+	updateFile,
 };

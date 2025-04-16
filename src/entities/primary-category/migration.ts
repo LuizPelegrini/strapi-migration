@@ -45,14 +45,14 @@ const migrate = async (primaryCategories: PrimaryCategory[]) => {
 };
 
 const getPrimaryCategoryDocumentId = (id: number) => {
-	return tracker.getDocumentId(id);
+	return tracker.get(id)?.documentId;
 };
 
 const updatePrimaryCategory = async (category: PrimaryCategory) => {
-	const { id } = category;
+	const { id, updated_at } = category;
 	console.log(`Updating: ${id}`);
 
-	const documentId = tracker.getDocumentId(category.id);
+	const { documentId } = tracker.get(category.id) || {};
 
 	if (!documentId) {
 		throw new Error(`Update Failed:PrimaryCategory ${id} not found`);
@@ -64,7 +64,7 @@ const updatePrimaryCategory = async (category: PrimaryCategory) => {
 		status: category.published_at ? 'published' : 'draft',
 	});
 
-	tracker.update(category.id, category.updated_at);
+	tracker.update(id, updated_at);
 };
 
 export default {

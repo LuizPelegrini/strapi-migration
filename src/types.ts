@@ -254,6 +254,8 @@ export type File = {
 	provider_metadata: any;
 	created_at: string;
 	updated_at: string;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	related?: any[];
 };
 
 type Format = {

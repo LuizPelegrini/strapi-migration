@@ -74,7 +74,7 @@ const updateCategory = async (category: Category) => {
 	const { id, primary_category, updated_at } = category;
 	console.log(`Updating: ${id}`);
 
-	const documentId = tracker.getDocumentId(category.id);
+	const { documentId } = tracker.get(category.id) || {};
 
 	if (!documentId) {
 		throw new Error(`Update Failed: Category ${category.id} not found`);

@@ -67,7 +67,7 @@ const updateShowSubCategory = async (showSubCategory: ShowSubCategory) => {
 	const { id, updated_at } = showSubCategory;
 	console.log(`Updating: ${id}`);
 
-	const documentId = tracker.getDocumentId(id);
+	const { documentId } = tracker.get(id) || {};
 	if (!documentId) {
 		throw new Error(`Update Failed: ShowSubCategory ${id} not found`);
 	}
