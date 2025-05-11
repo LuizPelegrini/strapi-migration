@@ -33,31 +33,44 @@ const migrate = async (shows: Show[]) => {
 			continue;
 		}
 
-		const { id } = show;
+		const {
+			id,
+			name,
+			description,
+			status,
+			published_at,
+			updated_at,
+			audio_s3path,
+			image_s3path,
+			slug,
+			omny_programid,
+			omny_playlistid,
+			show_art,
+			categories,
+			subcategories,
+		} = show;
 		console.log(`Migrating: ${id}`);
 
 		const { documentId } = await Strapi5.createShow({
-			name: show.name,
-			description: show.description,
-			customStatus: show.status,
-			audio_s3path: show.audio_s3path,
-			image_s3path: show.image_s3path,
-			slug: show.slug,
-			omny_programid: show.omny_programid,
-			omny_playlistid: show.omny_playlistid,
+			strapi3Id: id,
+			name: name,
+			description,
+			customStatus: status,
+			audio_s3path,
+			image_s3path,
+			slug,
+			omny_programid,
+			omny_playlistid,
 			// media files don't work with documentId, so we use the strapi 5 id
-			showArtDocumentId: getShowArtDocumentId(show.id, show.show_art?.id),
-			categoriesDocumentIds: getShowCategoriesDocumentIds(
-				show.id,
-				show.categories,
-			),
+			showArtDocumentId: getShowArtDocumentId(id, show_art?.id),
+			categoriesDocumentIds: getShowCategoriesDocumentIds(id, categories),
 			subcategoriesDocumentIds: getShowSubcategoriesDocumentIds(
-				show.id,
-				show.subcategories,
+				id,
+				subcategories,
 			),
-			status: show.published_at ? 'published' : 'draft',
+			status: published_at ? 'published' : 'draft',
 		});
-		tracker.register({ id, documentId, updated_at: show.updated_at });
+		tracker.register({ id, documentId, updated_at });
 	}
 };
 
@@ -122,35 +135,48 @@ const getShowSubcategoriesDocumentIds = (
 };
 
 const updateShow = async (show: Show) => {
-	const { id, updated_at } = show;
+	const {
+		id,
+		name,
+		description,
+		status,
+		published_at,
+		audio_s3path,
+		image_s3path,
+		slug,
+		omny_programid,
+		omny_playlistid,
+		show_art,
+		categories,
+		subcategories,
+		updated_at,
+	} = show;
 	console.log(`Updating: ${id}`);
 
-	const { documentId } = tracker.get(show.id) || {};
+	const { documentId } = tracker.get(id) || {};
 
 	if (!documentId) {
 		throw new Error(`Update Failed:Show ${id} not found`);
 	}
 
 	await Strapi5.updateShow(documentId, {
-		name: show.name,
-		description: show.description,
-		customStatus: show.status,
-		audio_s3path: show.audio_s3path,
-		image_s3path: show.image_s3path,
-		slug: show.slug,
-		omny_programid: show.omny_programid,
-		omny_playlistid: show.omny_playlistid,
+		strapi3Id: id,
+		name,
+		description,
+		customStatus: status,
+		audio_s3path,
+		image_s3path,
+		slug,
+		omny_programid,
+		omny_playlistid,
 		// media files don't work with documentId, so we use the strapi 5 id
-		showArtDocumentId: getShowArtDocumentId(show.id, show.show_art?.id),
-		categoriesDocumentIds: getShowCategoriesDocumentIds(
-			show.id,
-			show.categories,
-		),
+		showArtDocumentId: getShowArtDocumentId(id, show_art?.id),
+		categoriesDocumentIds: getShowCategoriesDocumentIds(id, categories),
 		subcategoriesDocumentIds: getShowSubcategoriesDocumentIds(
-			show.id,
-			show.subcategories,
+			id,
+			subcategories,
 		),
-		status: show.published_at ? 'published' : 'draft',
+		status: published_at ? 'published' : 'draft',
 	});
 
 	tracker.update(id, updated_at);

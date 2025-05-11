@@ -209,6 +209,7 @@ type Strapi5Show = Omit<
 	showArtDocumentId?: string;
 	categoriesDocumentIds?: string[];
 	subcategoriesDocumentIds?: string[];
+	strapi3Id?: number;
 	status: Status;
 };
 const createShow = async ({
