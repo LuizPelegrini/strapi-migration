@@ -3,6 +3,7 @@ import FileMigration from '@/entities/file/migration.ts';
 import PrimaryCategoryMigration from '@/entities/primary-category/migration.ts';
 import ShowCategoryMigration from '@/entities/show-category/migration.ts';
 import ShowSubCategoryMigration from '@/entities/show-sub-category/migration.ts';
+import ShowMigration from '@/entities/show/migration.ts';
 
 // REMINDER: The order of each migration script matters
 
@@ -12,4 +13,6 @@ import ShowSubCategoryMigration from '@/entities/show-sub-category/migration.ts'
 // await ShowCategoryMigration.start();
 // await ShowSubCategoryMigration.start();
 
-await FileMigration.start();
+// await FileMigration.start();
+
+await ShowMigration.start();

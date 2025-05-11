@@ -83,6 +83,11 @@ const updateShowSubCategory = async (showSubCategory: ShowSubCategory) => {
 	tracker.update(id, updated_at);
 };
 
+const getShowSubCategoryDocumentId = (id: number) => {
+	return tracker.get(id)?.documentId;
+};
+
 export default {
 	start,
+	getShowSubCategoryDocumentId,
 };

@@ -1,5 +1,5 @@
 import config from '@/config/index.ts';
-import type { File } from '@/types.ts';
+import type { File, Show } from '@/types.ts';
 import axios from 'axios';
 
 const client = axios.create({
@@ -76,7 +76,7 @@ const createCategory = async ({
 				description,
 				...(primaryCategoryDocumentId && {
 					primary_category: {
-						connect: [primaryCategoryDocumentId],
+						set: [primaryCategoryDocumentId],
 					},
 				}),
 			},
@@ -192,6 +192,98 @@ const updateFile = async (id: string, newData: Strapi5File) => {
 	await client.put(`/upload/migration/update/${id}`, { data: newData });
 };
 
+type ShowResponse = {
+	data: { documentId: string };
+};
+type Strapi5Show = Omit<
+	Show,
+	| 'id'
+	| 'status'
+	| 'categories'
+	| 'subcategories'
+	| 'show_art'
+	| 'published_at'
+	| 'updated_at'
+> & {
+	customStatus: boolean; // we renamed status (Strapi 3) to customStatus (Strapi 5)
+	showArtDocumentId?: string;
+	categoriesDocumentIds?: string[];
+	subcategoriesDocumentIds?: string[];
+	status: Status;
+};
+const createShow = async ({
+	showArtDocumentId,
+	categoriesDocumentIds,
+	subcategoriesDocumentIds,
+	status,
+	...show
+}: Strapi5Show) => {
+	const { data } = await client.post<ShowResponse>(
+		'/shows',
+		{
+			data: {
+				...show,
+				...(showArtDocumentId && {
+					show_art: {
+						set: [showArtDocumentId],
+					},
+				}),
+				...(categoriesDocumentIds && {
+					categories: {
+						set: categoriesDocumentIds,
+					},
+				}),
+				...(subcategoriesDocumentIds && {
+					subcategories: {
+						set: subcategoriesDocumentIds,
+					},
+				}),
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+
+	return data.data;
+};
+
+const updateShow = async (documentId: string, newData: Strapi5Show) => {
+	const {
+		status,
+		showArtDocumentId,
+		categoriesDocumentIds,
+		subcategoriesDocumentIds,
+		...show
+	} = newData;
+	await client.put(
+		`/shows/${documentId}`,
+		{
+			data: {
+				...show,
+				...(showArtDocumentId && {
+					show_art: {
+						set: [showArtDocumentId],
+					},
+				}),
+				...(categoriesDocumentIds && {
+					categories: {
+						set: categoriesDocumentIds,
+					},
+				}),
+				...(subcategoriesDocumentIds && {
+					subcategories: {
+						set: subcategoriesDocumentIds,
+					},
+				}),
+			},
+		},
+		{ params: { status } },
+	);
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -203,4 +295,6 @@ export default {
 	updateShowSubCategory,
 	createFile,
 	updateFile,
+	createShow,
+	updateShow,
 };

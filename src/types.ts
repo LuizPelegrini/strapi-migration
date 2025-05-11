@@ -156,6 +156,8 @@ export type Show = {
 	omny_playlistid: string | null;
 	categories: ShowCategory[];
 	subcategories: ShowCategory[];
+	published_at: string | null;
+	updated_at: string;
 };
 
 export type ShowCategory = {

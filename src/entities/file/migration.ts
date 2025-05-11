@@ -58,6 +58,16 @@ const updateFile = async (file: File) => {
 	tracker.update(id, data.updated_at);
 };
 
+const getFileStrapi5Id = (id: number) => {
+	// @ts-ignore strapi5Id is not typed, but it exists
+	const { strapi5Id } = tracker.get(id) || {};
+	if (!strapi5Id) {
+		throw new Error(`File ${id} not found`);
+	}
+	return strapi5Id;
+};
+
 export default {
 	start,
+	getFileStrapi5Id,
 };
