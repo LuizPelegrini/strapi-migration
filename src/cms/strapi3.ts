@@ -6,6 +6,7 @@ import type {
 	PrimaryCategory,
 	Show,
 	ShowCategory,
+	User,
 } from '@/types.ts';
 import axios from 'axios';
 
@@ -88,6 +89,18 @@ const getShows = async () => {
 	return data;
 };
 
+// TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
+const getUsers = async () => {
+	const { data } = await client.get<User[]>('/users/migration', {
+		params: {
+			_start: 0,
+			_limit: -1,
+		},
+	});
+
+	return data;
+};
+
 export default {
 	getArticles,
 	getPrimaryCategories,
@@ -97,4 +110,5 @@ export default {
 	getShowSubCategories,
 	getFiles,
 	getShows,
+	getUsers,
 };

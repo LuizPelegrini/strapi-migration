@@ -225,7 +225,13 @@ export type User = {
 	email: string;
 	confirmed: boolean;
 	blocked: boolean;
+	updated_at: string;
 	avatar: File | null;
+	password: string;
+	role: {
+		name: string;
+		type: string;
+	};
 };
 
 export type File = {

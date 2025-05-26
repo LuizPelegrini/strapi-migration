@@ -1,5 +1,5 @@
 import config from '@/config/index.ts';
-import type { File, Show } from '@/types.ts';
+import type { File, Show, User } from '@/types.ts';
 import axios from 'axios';
 
 const client = axios.create({
@@ -285,6 +285,63 @@ const updateShow = async (documentId: string, newData: Strapi5Show) => {
 	);
 };
 
+type UserResponse = {
+	documentId: string;
+	id: number;
+};
+type Strapi5User = Omit<
+	User,
+	'id' | 'updated_at' | 'role' | 'avatar' | 'password'
+>;
+
+const createUser = async ({
+	username,
+	email,
+	blocked,
+	confirmed,
+}: Strapi5User) => {
+	const generateSecurePassword = (length = 16) => {
+		const charset =
+			'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+		const randomValues = new Uint8Array(length);
+		crypto.getRandomValues(randomValues);
+
+		return Array.from(randomValues)
+			.map((x) => charset[x % charset.length])
+			.join('');
+	};
+
+	const password = generateSecurePassword();
+	const { data } = await client.post<UserResponse>('/users', {
+		username,
+		email,
+		blocked,
+		confirmed,
+		password,
+		role: {
+			connect: [{ id: 1 }], // 1 for 'Authenticated' role
+		},
+	});
+
+	return {
+		strapi5Id: data.id,
+		documentId: data.documentId,
+		password,
+	};
+};
+
+const updateUser = async (
+	id: number,
+	{ username, blocked, confirmed, email }: Strapi5User,
+) => {
+	await client.put(`/users/${id}`, {
+		username,
+		blocked,
+		confirmed,
+		email,
+	});
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -298,4 +355,6 @@ export default {
 	updateFile,
 	createShow,
 	updateShow,
+	createUser,
+	updateUser,
 };
