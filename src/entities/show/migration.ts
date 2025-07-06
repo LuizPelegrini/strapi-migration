@@ -51,7 +51,9 @@ const migrate = async (shows: Show[]) => {
 		} = show;
 		console.log(`Migrating: ${id}`);
 
-		const { documentId } = await Strapi5.createShow({
+		const isPublishedShow = !!published_at;
+
+		const { id: strapi5Id, documentId } = await Strapi5.createShow({
 			strapi3Id: id,
 			name: name,
 			description,
@@ -68,9 +70,33 @@ const migrate = async (shows: Show[]) => {
 				id,
 				subcategories,
 			),
-			status: published_at ? 'published' : 'draft',
+			status: isPublishedShow ? 'published' : 'draft',
 		});
-		tracker.register({ id, documentId, updated_at });
+
+		if (isPublishedShow) {
+			// We need to fetch its draft id to save it.
+			// This is needed when linking a user to a show, since it needs both ids to be set
+			const draftShowEntry = await Strapi5.getShow(documentId, {
+				status: 'draft',
+			});
+
+			tracker.register({
+				id,
+				documentId,
+				updated_at,
+				draftStrapi5Id: draftShowEntry.id,
+				publishedStrapi5Id: strapi5Id,
+			});
+		} else {
+			// If it's a draft show, we won't have a published show entry in Strapi 5
+			tracker.register({
+				id,
+				documentId,
+				updated_at,
+				draftStrapi5Id: strapi5Id,
+				publishedStrapi5Id: null,
+			});
+		}
 	}
 };
 
@@ -134,6 +160,17 @@ const getShowSubcategoriesDocumentIds = (
 	return documentIds;
 };
 
+const getShowIds = (
+	id: number,
+): { publishedStrapi5Id?: number; draftStrapi5Id?: number } => {
+	// @ts-ignore strapi5PublishedId, strapi5DraftId is not typed, but it exists
+	const { publishedStrapi5Id, draftStrapi5Id } = tracker.get(id) || {};
+	return {
+		publishedStrapi5Id,
+		draftStrapi5Id,
+	};
+};
+
 const updateShow = async (show: Show) => {
 	const {
 		id,
@@ -153,13 +190,16 @@ const updateShow = async (show: Show) => {
 	} = show;
 	console.log(`Updating: ${id}`);
 
-	const { documentId } = tracker.get(id) || {};
+	// @ts-ignore strapi5PublishedId is not typed, but it exists
+	const { documentId, publishedStrapi5Id } = tracker.get(id) || {};
 
 	if (!documentId) {
 		throw new Error(`Update Failed:Show ${id} not found`);
 	}
 
-	await Strapi5.updateShow(documentId, {
+	const isPublishedShow = !!published_at;
+
+	const { id: strapi5Id } = await Strapi5.updateShow(documentId, {
 		strapi3Id: id,
 		name,
 		description,
@@ -176,12 +216,19 @@ const updateShow = async (show: Show) => {
 			id,
 			subcategories,
 		),
-		status: published_at ? 'published' : 'draft',
+		status: isPublishedShow ? 'published' : 'draft',
 	});
 
-	tracker.update(id, updated_at);
+	// if show was not published before and it got published, we need to update the tracker to include the published id
+	tracker.update(id, updated_at, {
+		...(isPublishedShow &&
+			!publishedStrapi5Id && {
+				publishedStrapi5Id: strapi5Id,
+			}),
+	});
 };
 
 export default {
 	start,
+	getShowIds,
 };

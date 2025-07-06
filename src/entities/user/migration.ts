@@ -1,6 +1,7 @@
 import Strapi3 from '@/cms/strapi3.ts';
 import Strapi5 from '@/cms/strapi5.ts';
-import type { User } from '@/types.ts';
+import ShowMigration from '@/entities/show/migration.ts';
+import type { Show, User } from '@/types.ts';
 import { Tracker } from '@/utils/tracker.ts';
 
 const tracker = new Tracker('user');
@@ -39,10 +40,36 @@ const migrate = async (users: User[]) => {
 			email,
 			blocked,
 			confirmed,
+			// show relations don't work with documentId, so we use the strapi 5 id
+			shows: getShowsIds(id, user.shows),
 		});
 		tracker.register({ id, documentId, strapi5Id, updated_at });
 		savePassword(email, password);
 	}
+};
+
+const getShowsIds = (
+	userId: number,
+	shows: Show[],
+): {
+	publishedStrapi5Id: number;
+	draftStrapi5Id: number;
+}[] => {
+	const ids = shows.map((s) => ShowMigration.getShowIds(s.id));
+
+	// we just need to check for undefined draft ids, as published Ids might not be set if the show in Strapi 3 was set as draft during migration
+	const strapi5DraftIds = ids
+		.map((id) => id.draftStrapi5Id)
+		.filter((id) => !id);
+
+	if (strapi5DraftIds.length > 0) {
+		throw new Error(`
+			DRAFT shows IDs not found! User ${userId} has shows that are not migrated: ${strapi5DraftIds.join(' | ')}
+		`);
+	}
+
+	// @ts-ignore we already checked if ALL the ids are defined above
+	return ids;
 };
 
 // const getShowArtDocumentId = (showId: number, id?: number) => {
@@ -106,7 +133,7 @@ const migrate = async (users: User[]) => {
 // };
 
 const updateUser = async (user: User) => {
-	const { id, blocked, email, username, confirmed, updated_at } = user;
+	const { id, blocked, email, username, confirmed, updated_at, shows } = user;
 	console.log(`Updating: ${id}`);
 
 	// @ts-ignore strapi5Id is not typed, but it exists
@@ -121,6 +148,8 @@ const updateUser = async (user: User) => {
 		blocked,
 		confirmed,
 		email,
+		// show relations don't work with documentId, so we use the strapi 5 id
+		shows: getShowsIds(id, shows),
 	});
 
 	tracker.update(id, updated_at);

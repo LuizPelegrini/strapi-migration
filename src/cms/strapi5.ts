@@ -192,8 +192,15 @@ const updateFile = async (id: string, newData: Strapi5File) => {
 	await client.put(`/upload/migration/update/${id}`, { data: newData });
 };
 
+const getShow = async (documentId: string, params?: { status?: Status }) => {
+	const { data } = await client.get<ShowResponse>(`/shows/${documentId}`, {
+		params,
+	});
+	return data.data;
+};
+
 type ShowResponse = {
-	data: { documentId: string };
+	data: { id: number; documentId: string };
 };
 type Strapi5Show = Omit<
 	Show,
@@ -259,7 +266,7 @@ const updateShow = async (documentId: string, newData: Strapi5Show) => {
 		subcategoriesDocumentIds,
 		...show
 	} = newData;
-	await client.put(
+	const { data } = await client.put<ShowResponse>(
 		`/shows/${documentId}`,
 		{
 			data: {
@@ -283,6 +290,8 @@ const updateShow = async (documentId: string, newData: Strapi5Show) => {
 		},
 		{ params: { status } },
 	);
+
+	return data.data;
 };
 
 type UserResponse = {
@@ -291,14 +300,20 @@ type UserResponse = {
 };
 type Strapi5User = Omit<
 	User,
-	'id' | 'updated_at' | 'role' | 'avatar' | 'password'
->;
+	'id' | 'updated_at' | 'role' | 'avatar' | 'password' | 'shows'
+> & {
+	shows?: {
+		publishedStrapi5Id: number;
+		draftStrapi5Id: number;
+	}[];
+};
 
 const createUser = async ({
 	username,
 	email,
 	blocked,
 	confirmed,
+	shows,
 }: Strapi5User) => {
 	const generateSecurePassword = (length = 16) => {
 		const charset =
@@ -321,6 +336,22 @@ const createUser = async ({
 		role: {
 			connect: [{ id: 1 }], // 1 for 'Authenticated' role
 		},
+		...(shows && {
+			shows: {
+				// Mimic same behaviour when setting relation in the dashboard: setting both draft and published ids
+				set: shows.reduce(
+					(acc, show) => {
+						return [
+							// biome-ignore lint/performance/noAccumulatingSpread: <explanation>
+							...acc,
+							{ id: show.draftStrapi5Id },
+							{ id: show.publishedStrapi5Id },
+						];
+					},
+					[] as { id: number }[],
+				),
+			},
+		}),
 	});
 
 	return {
@@ -332,13 +363,29 @@ const createUser = async ({
 
 const updateUser = async (
 	id: number,
-	{ username, blocked, confirmed, email }: Strapi5User,
+	{ username, blocked, confirmed, email, shows }: Strapi5User,
 ) => {
 	await client.put(`/users/${id}`, {
 		username,
 		blocked,
 		confirmed,
 		email,
+		...(shows && {
+			shows: {
+				// Mimic same behaviour when setting relation in the dashboard: setting both draft and published ids
+				set: shows.reduce(
+					(acc, show) => {
+						return [
+							// biome-ignore lint/performance/noAccumulatingSpread: <explanation>
+							...acc,
+							{ id: show.draftStrapi5Id },
+							{ id: show.publishedStrapi5Id },
+						];
+					},
+					[] as { id: number }[],
+				),
+			},
+		}),
 	});
 };
 
@@ -353,6 +400,7 @@ export default {
 	updateShowSubCategory,
 	createFile,
 	updateFile,
+	getShow,
 	createShow,
 	updateShow,
 	createUser,

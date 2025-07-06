@@ -53,7 +53,7 @@ export class Tracker {
 		return registry.updated_at !== updated_at;
 	}
 
-	update(id: number, updated_at: string) {
+	update(id: number, updated_at: string, data?: Partial<Registry>) {
 		const registry = this.registries.get(id);
 
 		if (!registry) {
@@ -62,7 +62,7 @@ export class Tracker {
 			);
 		}
 
-		this.registries.set(id, { ...registry, updated_at });
+		this.registries.set(id, { ...registry, ...data, updated_at });
 	}
 
 	save() {

@@ -232,6 +232,7 @@ export type User = {
 		name: string;
 		type: string;
 	};
+	shows: Show[];
 };
 
 export type File = {
