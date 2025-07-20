@@ -32,6 +32,8 @@ export type Belt = {
 	description: string | null;
 	shows: Show[];
 	live_status: boolean;
+	updated_at: string;
+	published_at: string | null;
 };
 
 export type Category = {

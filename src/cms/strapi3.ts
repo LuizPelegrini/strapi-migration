@@ -1,6 +1,7 @@
 import config from '@/config/index.ts';
 import type {
 	Article,
+	Belt,
 	Category,
 	File,
 	PrimaryCategory,
@@ -84,6 +85,7 @@ const getShows = async () => {
 			// https://arc.net/l/quote/owqtkofw
 			// Getting all files, we can paginate if needed, but I'm too lazy to do it now
 			_limit: -1,
+			_publicationState: 'preview',
 		},
 	});
 	return data;
@@ -101,6 +103,19 @@ const getUsers = async () => {
 	return data;
 };
 
+// TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
+const getBelts = async () => {
+	const { data } = await client.get<Belt[]>('/belts', {
+		params: {
+			_start: 0,
+			_limit: -1,
+			_publicationState: 'preview', // TODO: Remove this once we've migrated all belts
+		},
+	});
+
+	return data;
+};
+
 export default {
 	getArticles,
 	getPrimaryCategories,
@@ -111,4 +126,5 @@ export default {
 	getFiles,
 	getShows,
 	getUsers,
+	getBelts,
 };

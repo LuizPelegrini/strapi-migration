@@ -1,5 +1,5 @@
 import config from '@/config/index.ts';
-import type { File, Show, User } from '@/types.ts';
+import type { Belt, File, Show, User } from '@/types.ts';
 import axios from 'axios';
 
 const client = axios.create({
@@ -395,6 +395,95 @@ const updateUser = async (
 	});
 };
 
+const getBelt = async (documentId: string, params?: { status?: Status }) => {
+	const { data } = await client.get<ShowResponse>(`/belts/${documentId}`, {
+		params,
+	});
+	return data.data;
+};
+
+type Strapi5Belt = Omit<
+	Belt,
+	'id' | 'updated_at' | 'published_at' | 'shows'
+> & {
+	status: Status;
+	strapi3Id: number;
+	showsDocumentIds: string[];
+};
+type BeltResponse = {
+	data: {
+		id: number;
+		documentId: string;
+	};
+};
+const createBelt = async ({
+	name,
+	description,
+	showsDocumentIds,
+	live_status,
+	slug,
+	status,
+	strapi3Id,
+}: Strapi5Belt) => {
+	const { data } = await client.post<BeltResponse>(
+		'/belts',
+		{
+			data: {
+				strapi3Id,
+				name,
+				description,
+				shows: {
+					set: showsDocumentIds,
+				},
+				live_status,
+				slug,
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+
+	return data.data;
+};
+
+const updateBelt = async (
+	documentId: string,
+	{
+		status,
+		showsDocumentIds,
+		strapi3Id,
+		name,
+		description,
+		live_status,
+		slug,
+	}: Strapi5Belt,
+) => {
+	const { data } = await client.put<BeltResponse>(
+		`/belts/${documentId}`,
+		{
+			data: {
+				strapi3Id,
+				name,
+				description,
+				shows: {
+					set: showsDocumentIds,
+				},
+				live_status,
+				slug,
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+	return data.data;
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -411,4 +500,7 @@ export default {
 	updateShow,
 	createUser,
 	updateUser,
+	getBelt,
+	createBelt,
+	updateBelt,
 };

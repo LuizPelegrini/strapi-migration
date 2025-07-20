@@ -171,6 +171,10 @@ const getShowIds = (
 	};
 };
 
+const getShowDocumentId = (id: number) => {
+	return tracker.get(id)?.documentId;
+};
+
 const updateShow = async (show: Show) => {
 	const {
 		id,
@@ -231,4 +235,5 @@ const updateShow = async (show: Show) => {
 export default {
 	start,
 	getShowIds,
+	getShowDocumentId,
 };

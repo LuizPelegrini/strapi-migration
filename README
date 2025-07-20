@@ -1,0 +1,10 @@
+# Notes
+
+1. As of Strapi 5.7, once an entry is published via API, it's not possible to
+   unpublish it via API:
+
+   - Passing `status` param in `PUT /api/*?status=draft`
+     does not unpublish entry (it modifies draft entry, and it keeps the previously
+     published as it is)
+   - Passing `publishedAt: null` in `PUT /api/*` body does
+     not unpublish entry (it still publish entry actually)

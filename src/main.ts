@@ -1,3 +1,4 @@
+import BeltMigration from '@/entities/belt/migration.ts';
 import CategoryMigration from '@/entities/category/migration.ts';
 import FileMigration from '@/entities/file/migration.ts';
 import PrimaryCategoryMigration from '@/entities/primary-category/migration.ts';
@@ -18,4 +19,6 @@ import UserMigration from '@/entities/user/migration.ts';
 
 // await ShowMigration.start();
 
-await UserMigration.start();
+// await UserMigration.start();
+
+await BeltMigration.start();
