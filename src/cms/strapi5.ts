@@ -92,10 +92,16 @@ const createCategory = async ({
 };
 
 const updateCategory = async (documentId: string, newData: Strapi5Category) => {
-	const { status, ...rest } = newData;
+	const { status, name, description, primaryCategoryDocumentId } = newData;
 	await client.put(
 		`/categories/${documentId}${status ? `?status=${status}` : ''}`,
-		{ data: rest },
+		{
+			data: {
+				name,
+				description,
+				primary_category: { set: [primaryCategoryDocumentId] },
+			},
+		},
 	);
 };
 
