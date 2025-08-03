@@ -5,6 +5,7 @@ import type {
 	Category,
 	File,
 	PrimaryCategory,
+	Salutation,
 	Show,
 	ShowCategory,
 	User,
@@ -116,6 +117,17 @@ const getBelts = async () => {
 	return data;
 };
 
+// TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
+const getSalutations = async () => {
+	const { data } = await client.get<Salutation[]>('/salutations/migration', {
+		params: {
+			_start: 0,
+			_limit: -1,
+		},
+	});
+	return data;
+};
+
 export default {
 	getArticles,
 	getPrimaryCategories,
@@ -127,4 +139,5 @@ export default {
 	getShows,
 	getUsers,
 	getBelts,
+	getSalutations,
 };

@@ -484,6 +484,31 @@ const updateBelt = async (
 	return data.data;
 };
 
+type SalutationResponse = {
+	data: { documentId: string };
+};
+type Strapi5Salutation = {
+	name: string;
+};
+const createSalutation = async ({ name }: Strapi5Salutation) => {
+	const { data } = await client.post<SalutationResponse>('/salutations', {
+		data: {
+			name,
+		},
+	});
+
+	return data.data.documentId;
+};
+
+const updateSalutation = async (
+	documentId: string,
+	newData: Strapi5Salutation,
+) => {
+	await client.put(`/salutations/${documentId}`, {
+		data: newData,
+	});
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -503,4 +528,6 @@ export default {
 	getBelt,
 	createBelt,
 	updateBelt,
+	createSalutation,
+	updateSalutation,
 };

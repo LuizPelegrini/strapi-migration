@@ -143,6 +143,7 @@ export type Profile = {
 export type Salutation = {
 	id: number;
 	name: string;
+	updated_at: string;
 };
 
 export type Show = {
