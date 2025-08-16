@@ -5,6 +5,7 @@ import type {
 	Category,
 	File,
 	PrimaryCategory,
+	Profile,
 	Salutation,
 	Show,
 	ShowCategory,
@@ -110,7 +111,7 @@ const getBelts = async () => {
 		params: {
 			_start: 0,
 			_limit: -1,
-			_publicationState: 'preview', // TODO: Remove this once we've migrated all belts
+			_publicationState: 'preview',
 		},
 	});
 
@@ -128,6 +129,18 @@ const getSalutations = async () => {
 	return data;
 };
 
+// TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
+const getProfiles = async () => {
+	const { data } = await client.get<Profile[]>('/profiles/original', {
+		params: {
+			_start: 0,
+			_limit: -1,
+			_publicationState: 'preview', // getting all profiles
+		},
+	});
+	return data;
+};
+
 export default {
 	getArticles,
 	getPrimaryCategories,
@@ -140,4 +153,5 @@ export default {
 	getUsers,
 	getBelts,
 	getSalutations,
+	getProfiles,
 };

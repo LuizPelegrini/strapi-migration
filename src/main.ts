@@ -2,6 +2,7 @@ import BeltMigration from '@/entities/belt/migration.ts';
 import CategoryMigration from '@/entities/category/migration.ts';
 import FileMigration from '@/entities/file/migration.ts';
 import PrimaryCategoryMigration from '@/entities/primary-category/migration.ts';
+import ProfileMigration from '@/entities/profile/migration.ts';
 import SalutationMigration from '@/entities/salutation/migration.ts';
 import ShowCategoryMigration from '@/entities/show-category/migration.ts';
 import ShowSubCategoryMigration from '@/entities/show-sub-category/migration.ts';
@@ -24,4 +25,6 @@ import UserMigration from '@/entities/user/migration.ts';
 
 // await BeltMigration.start();
 
-await SalutationMigration.start();
+// await SalutationMigration.start();
+
+await ProfileMigration.start();

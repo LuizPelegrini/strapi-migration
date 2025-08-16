@@ -138,6 +138,8 @@ export type Profile = {
 	moderator: boolean;
 	image: Json | null;
 	description: string | null;
+	published_at: string | null;
+	updated_at: string;
 };
 
 export type Salutation = {
