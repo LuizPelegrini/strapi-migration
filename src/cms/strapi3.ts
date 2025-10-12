@@ -156,7 +156,7 @@ const getSocmeds = async () => {
 
 // TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
 const getTags = async () => {
-	const { data } = await client.get<Tag[]>('/tags', {
+	const { data } = await client.get<Tag[]>('/tags/original', {
 		params: {
 			_start: 0,
 			_limit: -1,
