@@ -2791,5 +2791,12 @@
     "updated_at": "2025-08-11T02:52:43.000Z",
     "draftStrapi5Id": 765,
     "publishedStrapi5Id": 766
+  },
+  {
+    "id": 455,
+    "documentId": "tocak2dz6efnntliwacuq2j4",
+    "updated_at": "2025-08-19T04:45:44.000Z",
+    "draftStrapi5Id": 768,
+    "publishedStrapi5Id": 769
   }
 ]

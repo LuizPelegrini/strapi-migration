@@ -183,6 +183,7 @@ export type Socmed = {
 	url: string;
 	source: 'instagram' | 'facebook' | 'tiktok' | 'youtube' | 'other';
 	other_source: string | null;
+	updated_at: string;
 };
 
 export type Tag = {

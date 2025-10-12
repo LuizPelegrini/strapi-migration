@@ -1,5 +1,5 @@
 import config from '@/config/index.ts';
-import type { Belt, File, Profile, Show, User } from '@/types.ts';
+import type { Belt, File, Profile, Show, Socmed, User } from '@/types.ts';
 import axios from 'axios';
 
 const client = axios.create({
@@ -564,6 +564,35 @@ const getProfile = async (
 	return data.data;
 };
 
+type SocmedResponse = {
+	data: {
+		id: number;
+		documentId: string;
+	};
+};
+type Strapi5Socmed = Omit<Socmed, 'id' | 'updated_at'>;
+const createSocmed = async (socmed: Strapi5Socmed) => {
+	const { data } = await client.post<SocmedResponse>('/socmeds', {
+		data: socmed,
+	});
+
+	return data.data;
+};
+
+const updateSocmed = async (documentId: string, newData: Strapi5Socmed) => {
+	const { data } = await client.put<SocmedResponse>(`/socmeds/${documentId}`, {
+		data: newData,
+	});
+	return data.data;
+};
+
+const getSocmed = async (documentId: string, options?: { status?: Status }) => {
+	const { data } = await client.get<SocmedResponse>(`/socmeds/${documentId}`, {
+		params: options,
+	});
+	return data.data;
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -588,4 +617,7 @@ export default {
 	createProfile,
 	updateProfile,
 	getProfile,
+	createSocmed,
+	updateSocmed,
+	getSocmed,
 };
