@@ -30,4 +30,4 @@ import UserMigration from '@/entities/user/migration.ts';
 
 // await ProfileMigration.start();
 
-await SocmedMigration.start();
+// await SocmedMigration.start();
