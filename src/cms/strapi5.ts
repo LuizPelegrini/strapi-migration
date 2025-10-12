@@ -1,5 +1,5 @@
 import config from '@/config/index.ts';
-import type { Belt, File, Profile, Show, Socmed, User } from '@/types.ts';
+import type { Belt, File, Profile, Show, Socmed, Tag, User } from '@/types.ts';
 import axios from 'axios';
 
 const client = axios.create({
@@ -593,6 +593,68 @@ const getSocmed = async (documentId: string, options?: { status?: Status }) => {
 	return data.data;
 };
 
+type TagResponse = {
+	data: {
+		id: number;
+		documentId: string;
+	};
+};
+type Strapi5Tag = Omit<
+	Tag,
+	'id' | 'updated_at' | 'user_created_by' | 'user_updated_by'
+> & {
+	userCreatedByDocumentId: string | null;
+	userUpdatedByDocumentId: string | null;
+};
+const createTag = async (tag: Strapi5Tag) => {
+	const { userCreatedByDocumentId, userUpdatedByDocumentId, ...tagData } = tag;
+	const { data } = await client.post<TagResponse>('/tags', {
+		data: {
+			...tagData,
+			...(userCreatedByDocumentId && {
+				user_created_by: {
+					set: [userCreatedByDocumentId],
+				},
+			}),
+			...(userUpdatedByDocumentId && {
+				user_updated_by: {
+					set: [userUpdatedByDocumentId],
+				},
+			}),
+		},
+	});
+
+	return data.data;
+};
+
+const updateTag = async (documentId: string, newData: Strapi5Tag) => {
+	const { userCreatedByDocumentId, userUpdatedByDocumentId, ...tagData } =
+		newData;
+	const { data } = await client.put<TagResponse>(`/tags/${documentId}`, {
+		data: {
+			...tagData,
+			...(userCreatedByDocumentId && {
+				user_created_by: {
+					set: [userCreatedByDocumentId],
+				},
+			}),
+			...(userUpdatedByDocumentId && {
+				user_updated_by: {
+					set: [userUpdatedByDocumentId],
+				},
+			}),
+		},
+	});
+	return data.data;
+};
+
+const getTag = async (documentId: string, options?: { status?: Status }) => {
+	const { data } = await client.get<TagResponse>(`/tags/${documentId}`, {
+		params: options,
+	});
+	return data.data;
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -620,4 +682,7 @@ export default {
 	createSocmed,
 	updateSocmed,
 	getSocmed,
+	createTag,
+	updateTag,
+	getTag,
 };

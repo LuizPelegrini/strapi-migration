@@ -10,6 +10,7 @@ import type {
 	Show,
 	ShowCategory,
 	Socmed,
+	Tag,
 	User,
 } from '@/types.ts';
 import axios from 'axios';
@@ -153,6 +154,17 @@ const getSocmeds = async () => {
 	return data;
 };
 
+// TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
+const getTags = async () => {
+	const { data } = await client.get<Tag[]>('/tags', {
+		params: {
+			_start: 0,
+			_limit: -1,
+		},
+	});
+	return data;
+};
+
 export default {
 	getArticles,
 	getPrimaryCategories,
@@ -167,4 +179,5 @@ export default {
 	getSalutations,
 	getProfiles,
 	getSocmeds,
+	getTags,
 };

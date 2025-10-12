@@ -181,6 +181,11 @@ const savePassword = (email: string, password: string) => {
 	}
 };
 
+const getUserDocumentId = (strapi3UserId: number) => {
+	return tracker.get(strapi3UserId)?.documentId;
+};
+
 export default {
 	start,
+	getUserDocumentId,
 };
