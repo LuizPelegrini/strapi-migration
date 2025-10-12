@@ -191,6 +191,7 @@ export type Tag = {
 	name: string;
 	user_created_by: User | null;
 	user_updated_by: User | null;
+	updated_at: string;
 };
 
 export type Video = {
