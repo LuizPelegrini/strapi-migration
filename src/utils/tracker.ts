@@ -4,8 +4,8 @@ type Registry = {
 	id: number;
 	documentId: string;
 	updated_at?: string;
-	// biome-ignore lint/suspicious/noExplicitAny: file collection needs Strapi 5 id (not documentId) in order to be used when connecting to other collection
-	[key: string]: any;
+	// file collection needs Strapi 5 id (not documentId) in order to be used when connecting to other collection
+	[key: string]: unknown;
 };
 
 export class Tracker {

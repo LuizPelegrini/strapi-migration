@@ -633,16 +633,12 @@ const updateTag = async (documentId: string, newData: Strapi5Tag) => {
 	const { data } = await client.put<TagResponse>(`/tags/${documentId}`, {
 		data: {
 			...tagData,
-			...(userCreatedByDocumentId && {
-				user_created_by: {
-					set: [userCreatedByDocumentId],
-				},
-			}),
-			...(userUpdatedByDocumentId && {
-				user_updated_by: {
-					set: [userUpdatedByDocumentId],
-				},
-			}),
+			user_created_by: {
+				set: userCreatedByDocumentId ? [userCreatedByDocumentId] : [],
+			},
+			user_updated_by: {
+				set: userUpdatedByDocumentId ? [userUpdatedByDocumentId] : [],
+			},
 		},
 	});
 	return data.data;
