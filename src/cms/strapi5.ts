@@ -1,12 +1,33 @@
+import http from 'node:http';
+import https from 'node:https';
 import config from '@/config/index.ts';
 import type { Belt, File, Profile, Show, Socmed, Tag, User } from '@/types.ts';
 import axios from 'axios';
+
+// Configure HTTP agents with connection pooling
+const httpAgent = new http.Agent({
+	keepAlive: true,
+	keepAliveMsecs: 30000, // Keep connections alive for 30 seconds
+	maxSockets: 50, // Match your concurrency setting
+	maxFreeSockets: 10,
+	timeout: 60000, // 60 second timeout
+});
+
+const httpsAgent = new https.Agent({
+	keepAlive: true,
+	keepAliveMsecs: 30000,
+	maxSockets: 50, // Match your concurrency setting
+	maxFreeSockets: 10,
+	timeout: 60000,
+});
 
 const client = axios.create({
 	baseURL: config.strapi5.baseUrl,
 	headers: {
 		Authorization: `Bearer ${config.strapi5.token}`,
 	},
+	httpsAgent,
+	httpAgent,
 });
 
 type Status = 'draft' | 'published';

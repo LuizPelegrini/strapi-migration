@@ -1,7 +1,7 @@
 {
 	"tasks": {
 		"start:local": "deno run --allow-read --allow-write --allow-net --allow-env --env-file=.env.local ./src/main.ts",
-		"start:prod": "deno run --allow-read --allow-write --allow-net --allow-env --env-file=.env.production ./src/main.ts"
+		"start:prod": "deno run --allow-read --allow-write --allow-net --allow-env --v8-flags=--expose-gc --env-file=.env.production ./src/main.ts"
 	},
 	"imports": {
 		"@/": "./src/",

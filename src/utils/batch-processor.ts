@@ -151,6 +151,18 @@ export async function processBatch<T, R>(
 			onProgress(stats);
 		}
 
+		// Force garbage collection every 10 batches
+		if ((batchIndex + 1) % 10 === 0) {
+			// Cast to any to handle gc() which is not in standard types
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			if (typeof (globalThis as any).gc === 'function') {
+				console.log('🗑️  Triggering garbage collection...');
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				(globalThis as any).gc();
+			}
+			await sleep(1000); // Give time for cleanup
+		}
+
 		// Check for shutdown after batch completion
 		if (shutdownController.isShuttingDown()) {
 			console.log('\n⚠️  Shutdown requested. Stopping batch processing...');
