@@ -101,7 +101,6 @@ const migrate = async (tags: Tag[]) => {
 
 		const createStats = await processBatch(newTags, createProcessor, {
 			onItemSuccess: (strapi3Tag, strapi5Tag) => {
-				// Register each successful item individually
 				tracker.register({
 					id: strapi3Tag.id,
 					documentId: strapi5Tag.documentId,
@@ -148,10 +147,8 @@ const migrate = async (tags: Tag[]) => {
 		);
 
 		const updateStats = await processBatch(staleTags, updateProcessor, {
-			onItemSuccess: (_item, data) => {
-				// Update tracker for each successful item individually
-				const updateData = data as { id: number; updated_at: string };
-				tracker.update(updateData.id, updateData.updated_at);
+			onItemSuccess: (strapi3Tag, _strapi5Tag) => {
+				tracker.update(strapi3Tag.id, strapi3Tag.updated_at);
 			},
 			onProgress: (_stats) => {
 				// Save tracker state after each batch completion
