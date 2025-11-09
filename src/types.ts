@@ -16,13 +16,14 @@ export type Article = {
 	unpublished_on: string | null;
 	duration: number;
 	excerpt: string | null;
-	published_at: string;
+	published_at: string | null;
 	categories: Category[];
 	owner: User | null;
 	tags: Tag[];
 	authors: Profile[];
 	editors: Profile[];
 	cloudsearch_id: string | null;
+	updated_at: string;
 };
 
 export type Belt = {
@@ -67,7 +68,7 @@ export type Event = {
 	is_reminder: boolean;
 	cloudsearch_id: string;
 	owner: User | null;
-	published_at: string;
+	published_at: string | null;
 	created_at: string;
 	updated_at: string;
 	Moderators: Profile[];
@@ -85,6 +86,8 @@ export type Guest = {
 	salutations: Salutation[];
 	user_created_by: User | null;
 	user_updated_by: User | null;
+	published_at: string | null;
+	updated_at: string;
 	image: Json | null;
 	description: string | null;
 };
@@ -109,6 +112,8 @@ export type Podcast = {
 	omny_image: string | null;
 	facebook_image: string | null;
 	show: Show | null;
+	updated_at: string;
+	published_at: string | null;
 	original_mp3: string | null;
 	owner: User | null;
 	presenters: Profile[];
@@ -220,6 +225,8 @@ export type Video = {
 	uuid: string;
 	duration: number;
 	show: Show | null;
+	updated_at: string;
+	published_at: string | null;
 };
 
 type Json = {

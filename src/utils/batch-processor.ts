@@ -4,7 +4,7 @@ import type { AxiosError as _AxiosError } from 'axios';
 /**
  * Manages graceful shutdown of batch processing
  */
-class ShutdownController {
+export class ShutdownController {
 	private shouldShutdown = false;
 	private shutdownPromiseResolve: (() => void) | null = null;
 	private shutdownPromise: Promise<void> | null = null;
@@ -38,7 +38,12 @@ class ShutdownController {
 	}
 }
 
-export const shutdownController = new ShutdownController();
+/**
+ * Factory function to create a new ShutdownController instance
+ */
+export function createShutdownController(): ShutdownController {
+	return new ShutdownController();
+}
 
 type ProcessingResult<T> = {
 	success: boolean;
@@ -61,7 +66,7 @@ type ProcessBatchOptions<T, R> = {
 	maxRetries?: number;
 	batchDelayMs?: number;
 	onProgress?: (stats: BatchStats) => void;
-	onItemSuccess?: (item: T, data: R) => void;
+	onItemSuccess?: (item: T, data: R) => Promise<void>;
 };
 
 /**
@@ -70,6 +75,7 @@ type ProcessBatchOptions<T, R> = {
 export async function processBatch<T, R>(
 	items: T[],
 	processor: (item: T) => Promise<R>,
+	shutdownController: ShutdownController,
 	options: ProcessBatchOptions<T, R> = {},
 ): Promise<BatchStats> {
 	const {
@@ -118,6 +124,7 @@ export async function processBatch<T, R>(
 			processor,
 			concurrency,
 			maxRetries,
+			shutdownController,
 			onItemSuccess,
 		);
 
@@ -191,6 +198,7 @@ async function processBatchWithConcurrency<T, R>(
 	processor: (item: T) => Promise<R>,
 	concurrency: number,
 	maxRetries: number,
+	shutdownController: ShutdownController,
 	onItemSuccess?: (item: T, data: R) => void,
 ): Promise<ProcessingResult<R>[]> {
 	const results: ProcessingResult<R>[] = [];

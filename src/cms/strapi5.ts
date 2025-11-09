@@ -1,7 +1,16 @@
 import http from 'node:http';
 import https from 'node:https';
 import config from '@/config/index.ts';
-import type { Belt, File, Profile, Show, Socmed, Tag, User } from '@/types.ts';
+import type {
+	Belt,
+	File,
+	Guest,
+	Profile,
+	Show,
+	Socmed,
+	Tag,
+	User,
+} from '@/types.ts';
 import axios from 'axios';
 
 // Configure HTTP agents with connection pooling
@@ -672,6 +681,110 @@ const getTag = async (documentId: string, options?: { status?: Status }) => {
 	return data.data;
 };
 
+type GuestResponse = {
+	data: {
+		id: number;
+		documentId: string;
+	};
+};
+type Strapi5Guest = Omit<
+	Guest,
+	| 'id'
+	| 'updated_at'
+	| 'salutations'
+	| 'user_created_by'
+	| 'user_updated_by'
+	| 'published_at'
+> & {
+	salutationDocumentIds?: string[];
+	userCreatedByDocumentId?: string | null;
+	userUpdatedByDocumentId?: string | null;
+	status: Status;
+};
+const createGuest = async (guest: Strapi5Guest) => {
+	const {
+		salutationDocumentIds,
+		userCreatedByDocumentId,
+		userUpdatedByDocumentId,
+		status,
+		...guestData
+	} = guest;
+	const { data } = await client.post<GuestResponse>(
+		'/guests',
+		{
+			data: {
+				...guestData,
+				...(salutationDocumentIds &&
+					salutationDocumentIds.length > 0 && {
+						salutations: {
+							set: salutationDocumentIds,
+						},
+					}),
+				...(userCreatedByDocumentId && {
+					user_created_by: {
+						set: [userCreatedByDocumentId],
+					},
+				}),
+				...(userUpdatedByDocumentId && {
+					user_updated_by: {
+						set: [userUpdatedByDocumentId],
+					},
+				}),
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+
+	return data.data;
+};
+
+const updateGuest = async (documentId: string, newData: Strapi5Guest) => {
+	const {
+		salutationDocumentIds,
+		userCreatedByDocumentId,
+		userUpdatedByDocumentId,
+		status,
+		...guestData
+	} = newData;
+	const { data } = await client.put<GuestResponse>(
+		`/guests/${documentId}`,
+		{
+			data: {
+				...guestData,
+				salutations: {
+					set:
+						salutationDocumentIds && salutationDocumentIds.length > 0
+							? salutationDocumentIds
+							: [],
+				},
+				user_created_by: {
+					set: userCreatedByDocumentId ? [userCreatedByDocumentId] : [],
+				},
+				user_updated_by: {
+					set: userUpdatedByDocumentId ? [userUpdatedByDocumentId] : [],
+				},
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+	return data.data;
+};
+
+const getGuest = async (documentId: string, options?: { status?: Status }) => {
+	const { data } = await client.get<GuestResponse>(`/guests/${documentId}`, {
+		params: options,
+	});
+	return data.data;
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -702,4 +815,7 @@ export default {
 	createTag,
 	updateTag,
 	getTag,
+	createGuest,
+	updateGuest,
+	getGuest,
 };

@@ -3,13 +3,14 @@ import Strapi5 from '@/cms/strapi5.ts';
 import UserMigration from '@/entities/user/migration.ts';
 import type { Tag } from '@/types.ts';
 import {
+	createShutdownController,
 	createStrapiProcessor,
 	processBatch,
-	shutdownController,
 } from '@/utils/batch-processor.ts';
 import { Tracker } from '@/utils/tracker.ts';
 
 const tracker = new Tracker('tag');
+const shutdownController = createShutdownController();
 
 // Set up SIGINT handler to save tracker state on interruption
 Deno.addSignalListener('SIGINT', async () => {
@@ -90,28 +91,33 @@ const migrate = async (tags: Tag[]) => {
 					userUpdatedByDocumentId,
 				});
 
-				return {
-					id,
-					documentId,
-					updated_at,
-				};
+				return { documentId };
 			},
 			(tag: Tag) => tag.id,
 		);
 
-		const createStats = await processBatch(newTags, createProcessor, {
-			onItemSuccess: (strapi3Tag, strapi5Tag) => {
-				tracker.register({
-					id: strapi3Tag.id,
-					documentId: strapi5Tag.documentId,
-					updated_at: strapi3Tag.updated_at,
-				});
+		const createStats = await processBatch(
+			newTags,
+			createProcessor,
+			shutdownController,
+			{
+				// deno-lint-ignore require-await
+				onItemSuccess: async (strapi3Tag, strapi5Tag) => {
+					const { id, updated_at } = strapi3Tag;
+					const { documentId } = strapi5Tag;
+
+					tracker.register({
+						id,
+						documentId,
+						updated_at,
+					});
+				},
+				onProgress: (_stats) => {
+					// Save tracker state after each batch completion
+					tracker.save();
+				},
 			},
-			onProgress: (_stats) => {
-				// Save tracker state after each batch completion
-				tracker.save();
-			},
-		});
+		);
 
 		totalStats.successful += createStats.successful;
 		totalStats.failed += createStats.failed;
@@ -135,26 +141,33 @@ const migrate = async (tags: Tag[]) => {
 				const userCreatedByDocumentId = getUserDocumentId(user_created_by?.id);
 				const userUpdatedByDocumentId = getUserDocumentId(user_updated_by?.id);
 
-				await Strapi5.updateTag(documentId, {
+				const { id: strapi5Id } = await Strapi5.updateTag(documentId, {
 					name,
 					userCreatedByDocumentId,
 					userUpdatedByDocumentId,
 				});
 
-				return { id, updated_at };
+				return { strapi5Id };
 			},
 			(tag: Tag) => tag.id,
 		);
 
-		const updateStats = await processBatch(staleTags, updateProcessor, {
-			onItemSuccess: (strapi3Tag, _strapi5Tag) => {
-				tracker.update(strapi3Tag.id, strapi3Tag.updated_at);
+		const updateStats = await processBatch(
+			staleTags,
+			updateProcessor,
+			shutdownController,
+			{
+				// deno-lint-ignore require-await
+				onItemSuccess: async (strapi3Tag, _strapi5Tag) => {
+					const { id, updated_at } = strapi3Tag;
+					tracker.update(id, updated_at);
+				},
+				onProgress: (_stats) => {
+					// Save tracker state after each batch completion
+					tracker.save();
+				},
 			},
-			onProgress: (_stats) => {
-				// Save tracker state after each batch completion
-				tracker.save();
-			},
-		});
+		);
 
 		totalStats.successful += updateStats.successful;
 		totalStats.failed += updateStats.failed;

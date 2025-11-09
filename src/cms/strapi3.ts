@@ -4,6 +4,7 @@ import type {
 	Belt,
 	Category,
 	File,
+	Guest,
 	PrimaryCategory,
 	Profile,
 	Salutation,
@@ -165,6 +166,18 @@ const getTags = async () => {
 	return data;
 };
 
+// TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
+const getGuests = async () => {
+	const { data } = await client.get<Guest[]>('/guests', {
+		params: {
+			_start: 0,
+			_limit: -1,
+			_publicationState: 'preview', // getting all guests
+		},
+	});
+	return data;
+};
+
 export default {
 	getArticles,
 	getPrimaryCategories,
@@ -180,4 +193,5 @@ export default {
 	getProfiles,
 	getSocmeds,
 	getTags,
+	getGuests,
 };
