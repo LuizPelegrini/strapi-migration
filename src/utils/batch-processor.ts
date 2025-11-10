@@ -199,7 +199,7 @@ async function processBatchWithConcurrency<T, R>(
 	concurrency: number,
 	maxRetries: number,
 	shutdownController: ShutdownController,
-	onItemSuccess?: (item: T, data: R) => void,
+	onItemSuccess?: (item: T, data: R) => Promise<void>,
 ): Promise<ProcessingResult<R>[]> {
 	const results: ProcessingResult<R>[] = [];
 
@@ -212,8 +212,10 @@ async function processBatchWithConcurrency<T, R>(
 				const data = await processWithRetry(item, processor, maxRetries);
 
 				// Call onItemSuccess immediately when API call succeeds
-				if (onItemSuccess) {
-					onItemSuccess(item, data);
+				try {
+					await onItemSuccess?.(item, data);
+				} catch (error) {
+					console.error('Error in onItemSuccess:', String(error));
 				}
 
 				return {

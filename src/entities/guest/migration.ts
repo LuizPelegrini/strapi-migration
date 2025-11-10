@@ -34,7 +34,7 @@ const start = async () => {
 	const guests = await Strapi3.getGuests();
 
 	try {
-		await migrate(guests.filter((guest) => guest.id === 78328).slice(0, 1));
+		await migrate(guests);
 		console.log('Guest migration completed 🎉');
 	} catch (error) {
 		console.log(error);
@@ -142,6 +142,8 @@ const migrate = async (guests: Guest[]) => {
 					});
 
 					// Hopefully this never happens, otherwise we need to move this logic outside onItemSuccess
+					// This means that guest was draft in Strapi 3 but created as published in Strapi 5
+					// or vice versa
 					if (!guestInfo) {
 						throw new Error(
 							`CREATE: Guest ${id} with status ${isPublishedGuest ? 'published' : 'draft'} not found in Strapi 5`,
