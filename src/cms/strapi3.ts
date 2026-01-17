@@ -14,6 +14,7 @@ import type {
 	Socmed,
 	Tag,
 	User,
+	Video,
 } from '@/types.ts';
 import axios from 'axios';
 
@@ -191,6 +192,18 @@ const getEvents = async () => {
 	return data;
 };
 
+// TODO: If memory is a concern, consider reducing response size by selecting only the fields we need
+const getVideos = async () => {
+	const { data } = await client.get<Video[]>('/videos', {
+		params: {
+			_start: 0,
+			_limit: -1,
+			_publicationState: 'preview', // getting all videos
+		},
+	});
+	return data;
+};
+
 export default {
 	getArticles,
 	getPrimaryCategories,
@@ -208,4 +221,5 @@ export default {
 	getTags,
 	getGuests,
 	getEvents,
+	getVideos,
 };

@@ -68,6 +68,11 @@ const updateSocmed = async (socmed: Socmed) => {
 	tracker.update(id, updated_at);
 };
 
+const getSocmedDocumentId = (strapi3SocmedId: number) => {
+	return tracker.get(strapi3SocmedId)?.documentId;
+};
+
 export default {
 	start,
+	getSocmedDocumentId,
 };

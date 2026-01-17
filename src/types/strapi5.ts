@@ -34,3 +34,30 @@ export type Event = {
 	cloudsearch_id: string;
 	owner: Relation | null;
 };
+
+export type Video = {
+	title: string;
+	slug: string;
+	description: string | null;
+	hide_download: boolean;
+	hide_sponsor: boolean;
+	editors_picked: boolean;
+	producers: Relation;
+	presenters: Relation;
+	guests: Relation;
+	categories: Relation;
+	show: Relation;
+	tags: Relation;
+	is_hero: boolean;
+	publish_at: string | null;
+	video: Json | null;
+	socmeds: Relation;
+	image_1x1: Json | null;
+	image_16x9: Json | null;
+	image_9x16: Json | null;
+	user_created_by: Relation | null;
+	user_updated_by: Relation | null;
+	is_delisted: boolean;
+	uuid: string;
+	duration: number;
+};

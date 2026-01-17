@@ -11,7 +11,10 @@ import type {
 	Tag,
 	User,
 } from '@/types.ts';
-import type { Event as Strapi5EventBase } from '@/types/strapi5.ts';
+import type {
+	Event as Strapi5EventBase,
+	Video as Strapi5VideoBase,
+} from '@/types/strapi5.ts';
 import axios from 'axios';
 
 // Configure HTTP agents with connection pooling
@@ -900,6 +903,217 @@ const getEvent = async (documentId: string, options?: { status?: Status }) => {
 	return data.data;
 };
 
+type VideoResponse = {
+	data: {
+		id: number;
+		documentId: string;
+	};
+};
+type Strapi5Video = Omit<
+	Strapi5VideoBase,
+	'video' | 'image_1x1' | 'image_16x9' | 'image_9x16'
+> & {
+	status: Status;
+	videoDocumentId?: string;
+	image1x1DocumentId?: string;
+	image16x9DocumentId?: string;
+	image9x16DocumentId?: string;
+};
+const createVideo = async (video: Strapi5Video) => {
+	const {
+		producers,
+		presenters,
+		guests,
+		categories,
+		tags,
+		socmeds,
+		show,
+		user_created_by,
+		user_updated_by,
+		status,
+		videoDocumentId,
+		image1x1DocumentId,
+		image16x9DocumentId,
+		image9x16DocumentId,
+		...videoData
+	} = video;
+	const { data } = await client.post<VideoResponse>(
+		'/videos',
+		{
+			data: {
+				...videoData,
+				...(producers &&
+					producers.length > 0 && {
+						producers: {
+							set: producers,
+						},
+					}),
+				...(presenters &&
+					presenters.length > 0 && {
+						presenters: {
+							set: presenters,
+						},
+					}),
+				...(guests &&
+					guests.length > 0 && {
+						guests: {
+							set: guests,
+						},
+					}),
+				...(categories &&
+					categories.length > 0 && {
+						categories: {
+							set: categories,
+						},
+					}),
+				...(tags &&
+					tags.length > 0 && {
+						tags: {
+							set: tags,
+						},
+					}),
+				...(socmeds &&
+					socmeds.length > 0 && {
+						socmeds: {
+							set: socmeds,
+						},
+					}),
+				...(show &&
+					show.length > 0 && {
+						show: {
+							set: show,
+						},
+					}),
+				...(user_created_by &&
+					user_created_by.length > 0 && {
+						user_created_by: {
+							set: user_created_by,
+						},
+					}),
+				...(user_updated_by &&
+					user_updated_by.length > 0 && {
+						user_updated_by: {
+							set: user_updated_by,
+						},
+					}),
+				...(videoDocumentId && {
+					video: {
+						set: [videoDocumentId],
+					},
+				}),
+				...(image1x1DocumentId && {
+					image_1x1: {
+						set: [image1x1DocumentId],
+					},
+				}),
+				...(image16x9DocumentId && {
+					image_16x9: {
+						set: [image16x9DocumentId],
+					},
+				}),
+				...(image9x16DocumentId && {
+					image_9x16: {
+						set: [image9x16DocumentId],
+					},
+				}),
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+
+	return data.data;
+};
+
+const updateVideo = async (documentId: string, newData: Strapi5Video) => {
+	const {
+		producers,
+		presenters,
+		guests,
+		categories,
+		tags,
+		socmeds,
+		show,
+		user_created_by,
+		user_updated_by,
+		status,
+		videoDocumentId,
+		image1x1DocumentId,
+		image16x9DocumentId,
+		image9x16DocumentId,
+		...videoData
+	} = newData;
+	const { data } = await client.put<VideoResponse>(
+		`/videos/${documentId}`,
+		{
+			data: {
+				...videoData,
+				producers: {
+					set: producers && producers.length > 0 ? producers : [],
+				},
+				presenters: {
+					set: presenters && presenters.length > 0 ? presenters : [],
+				},
+				guests: {
+					set: guests && guests.length > 0 ? guests : [],
+				},
+				categories: {
+					set: categories && categories.length > 0 ? categories : [],
+				},
+				tags: {
+					set: tags && tags.length > 0 ? tags : [],
+				},
+				socmeds: {
+					set: socmeds && socmeds.length > 0 ? socmeds : [],
+				},
+				show: {
+					set: show && show.length > 0 ? show : [],
+				},
+				user_created_by: {
+					set:
+						user_created_by && user_created_by.length > 0
+							? user_created_by
+							: [],
+				},
+				user_updated_by: {
+					set:
+						user_updated_by && user_updated_by.length > 0
+							? user_updated_by
+							: [],
+				},
+				video: {
+					set: videoDocumentId ? [videoDocumentId] : [],
+				},
+				image_1x1: {
+					set: image1x1DocumentId ? [image1x1DocumentId] : [],
+				},
+				image_16x9: {
+					set: image16x9DocumentId ? [image16x9DocumentId] : [],
+				},
+				image_9x16: {
+					set: image9x16DocumentId ? [image9x16DocumentId] : [],
+				},
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+	return data.data;
+};
+
+const getVideo = async (documentId: string, options?: { status?: Status }) => {
+	const { data } = await client.get<VideoResponse>(`/videos/${documentId}`, {
+		params: options,
+	});
+	return data.data;
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -936,4 +1150,7 @@ export default {
 	createEvent,
 	updateEvent,
 	getEvent,
+	createVideo,
+	updateVideo,
+	getVideo,
 };

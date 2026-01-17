@@ -12,6 +12,7 @@ import ShowMigration from '@/entities/show/migration.ts';
 import SocmedMigration from '@/entities/socmed/migration.ts';
 import TagMigration from '@/entities/tag/migration.ts';
 import UserMigration from '@/entities/user/migration.ts';
+import VideoMigration from '@/entities/video/migration.ts';
 
 // REMINDER: The order of each migration script matters
 
@@ -39,4 +40,6 @@ import UserMigration from '@/entities/user/migration.ts';
 
 // await GuestMigration.start();
 
-await EventMigration.start();
+// await EventMigration.start();
+
+await VideoMigration.start();
