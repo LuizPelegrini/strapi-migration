@@ -1,5 +1,6 @@
 import BeltMigration from '@/entities/belt/migration.ts';
 import CategoryMigration from '@/entities/category/migration.ts';
+import EventMigration from '@/entities/event/migration.ts';
 import FileMigration from '@/entities/file/migration.ts';
 import GuestMigration from '@/entities/guest/migration.ts';
 import PrimaryCategoryMigration from '@/entities/primary-category/migration.ts';
@@ -36,4 +37,6 @@ import UserMigration from '@/entities/user/migration.ts';
 
 // await TagMigration.start();
 
-await GuestMigration.start();
+// await GuestMigration.start();
+
+await EventMigration.start();

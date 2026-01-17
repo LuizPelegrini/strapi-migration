@@ -133,6 +133,11 @@ const updateProfile = async (profile: Profile) => {
 	});
 };
 
+const getProfileDocumentId = (strapi3ProfileId: number) => {
+	return tracker.get(strapi3ProfileId)?.documentId;
+};
+
 export default {
 	start,
+	getProfileDocumentId,
 };

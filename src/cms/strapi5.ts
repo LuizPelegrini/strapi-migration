@@ -11,6 +11,7 @@ import type {
 	Tag,
 	User,
 } from '@/types.ts';
+import type { Event as Strapi5EventBase } from '@/types/strapi5.ts';
 import axios from 'axios';
 
 // Configure HTTP agents with connection pooling
@@ -785,6 +786,120 @@ const getGuest = async (documentId: string, options?: { status?: Status }) => {
 	return data.data;
 };
 
+type EventResponse = {
+	data: {
+		id: number;
+		documentId: string;
+	};
+};
+type Strapi5Event = Omit<Strapi5EventBase, 'locked_by' | 'locked_until'> & {
+	status: Status;
+};
+const createEvent = async (event: Strapi5Event) => {
+	const {
+		Moderators,
+		Panelists,
+		categories,
+		tags,
+		owner,
+		status,
+		...eventData
+	} = event;
+	const { data } = await client.post<EventResponse>(
+		'/events',
+		{
+			data: {
+				...eventData,
+				...(Moderators &&
+					Moderators.length > 0 && {
+						Moderators: {
+							set: Moderators,
+						},
+					}),
+				...(Panelists &&
+					Panelists.length > 0 && {
+						Panelists: {
+							set: Panelists,
+						},
+					}),
+				...(categories &&
+					categories.length > 0 && {
+						categories: {
+							set: categories,
+						},
+					}),
+				...(tags &&
+					tags.length > 0 && {
+						tags: {
+							set: tags,
+						},
+					}),
+				...(owner &&
+					owner.length > 0 && {
+						owner: {
+							set: owner,
+						},
+					}),
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+
+	return data.data;
+};
+
+const updateEvent = async (documentId: string, newData: Strapi5Event) => {
+	const {
+		Moderators,
+		Panelists,
+		categories,
+		tags,
+		owner,
+		status,
+		...eventData
+	} = newData;
+	const { data } = await client.put<EventResponse>(
+		`/events/${documentId}`,
+		{
+			data: {
+				...eventData,
+				Moderators: {
+					set: Moderators && Moderators.length > 0 ? Moderators : [],
+				},
+				Panelists: {
+					set: Panelists && Panelists.length > 0 ? Panelists : [],
+				},
+				categories: {
+					set: categories && categories.length > 0 ? categories : [],
+				},
+				tags: {
+					set: tags && tags.length > 0 ? tags : [],
+				},
+				owner: {
+					set: owner && owner.length > 0 ? owner : [],
+				},
+			},
+		},
+		{
+			params: {
+				status,
+			},
+		},
+	);
+	return data.data;
+};
+
+const getEvent = async (documentId: string, options?: { status?: Status }) => {
+	const { data } = await client.get<EventResponse>(`/events/${documentId}`, {
+		params: options,
+	});
+	return data.data;
+};
+
 export default {
 	createPrimaryCategory,
 	updatePrimaryCategory,
@@ -818,4 +933,7 @@ export default {
 	createGuest,
 	updateGuest,
 	getGuest,
+	createEvent,
+	updateEvent,
+	getEvent,
 };

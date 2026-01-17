@@ -210,6 +210,11 @@ const getUserDocumentId = (strapi3UserId?: number) => {
 	return userDocumentId;
 };
 
+const getTagDocumentId = (strapi3TagId: number) => {
+	return tracker.get(strapi3TagId)?.documentId;
+};
+
 export default {
 	start,
+	getTagDocumentId,
 };

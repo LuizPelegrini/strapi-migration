@@ -95,6 +95,11 @@ const updateCategory = async (category: Category) => {
 	tracker.update(id, updated_at);
 };
 
+const getCategoryDocumentId = (strapi3CategoryId: number) => {
+	return tracker.get(strapi3CategoryId)?.documentId;
+};
+
 export default {
 	start,
+	getCategoryDocumentId,
 };
